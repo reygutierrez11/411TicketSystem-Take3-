@@ -40,12 +40,12 @@ public class Tickets extends JFrame implements ActionListener {
 	JMenuItem mnuItemClosedTickets; //for use in viewing the closed ticket menu
 
 
-	public Tickets(Boolean isAdmin) {
+	public Tickets(Boolean isAdmin, String user) {
 
 		chkIfAdmin = isAdmin;
 		createMenu();
 		prepareGUI();
-		//username = user;
+		username = user;
 
 	}
 
