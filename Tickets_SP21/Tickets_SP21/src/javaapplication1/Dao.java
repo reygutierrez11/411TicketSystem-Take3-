@@ -199,7 +199,7 @@ public class Dao {
 		}
 	}
 
-	}}
+	}
 
 	// this allows for entering closed tickets into the closed ticket table and
 	// being able to view them
@@ -219,7 +219,7 @@ public class Dao {
 		ResultSet results = null;
 		try {
 			statement = getConnection().createStatement();
-			results = statement.executeQuery("SELECT * FROM tacos_closedT");
+			results = statement.executeQuery("SELECT * FROM rguti_closedT");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
