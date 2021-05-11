@@ -13,14 +13,14 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Dao {
-	
+
 	// instance fields
 	static Connection connect = null;
 	Statement statement = null;
 
 	// constructor
 	public Dao() {
-	  
+
 	}
 
 	public Connection getConnection() {
@@ -42,7 +42,7 @@ public class Dao {
 		// variables for SQL Query table creations
 		final String createTicketsTable = "CREATE TABLE rguti_tickets(ticket_id INT AUTO_INCREMENT PRIMARY KEY, ticket_issuer VARCHAR(30), ticket_description VARCHAR(200))";
 		final String createUsersTable = "CREATE TABLE rguti_users(uid INT AUTO_INCREMENT PRIMARY KEY, uname VARCHAR(30), upass VARCHAR(30), admin int)";
-		//third table is for closed tickets
+		// third table is for closed tickets
 		final String createClosedTicketsTable = "CREATE TABLE rguti_closedT(ticket_id INT PRIMARY KEY, ticket_status VARCHAR(10), ticket_closer VARCHAR(30))";
 
 		try {
@@ -141,27 +141,29 @@ public class Dao {
 		try {
 			statement = connect.createStatement();
 			results = statement.executeQuery("SELECT * FROM rguti_tickets");
-			//connect.close();
+			// connect.close();
 		} catch (SQLException e1) {
 			e1.printStackTrace();
 		}
 		return results;
 	}
+
 	// continue coding for updateRecords implementation
 	public void updateRecords(String desc, int ticket_id) {
-		//UpdateSet up = null
+		// UpdateSet up = null
 		try {
 			statement = connect.createStatement();
-			statement.executeUpdate("UPDATE rguti_tickets" + " SET ticket_description = '"+desc+"' "
-					+ " WHERE ticket_id = '"+ticket_id+"' ");
+			statement.executeUpdate("UPDATE rguti_tickets" + " SET ticket_description = '" + desc + "' "
+					+ " WHERE ticket_id = '" + ticket_id + "' ");
 			JOptionPane.showMessageDialog(null, "Update Complete");
-		}
-		catch(SQLException e1) {
+		} catch (SQLException e1) {
 			e1.printStackTrace();
 		}
-		//return up;
-		}
+		// return up;
 	}
+
+	}
+
 	// continue coding for deleteRecords implementation
 	public void deleteRecords(int ticketNum) {
 		
@@ -178,27 +180,50 @@ public class Dao {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 	}
-		//this allows for closing tickets and entering them into the closed ticket table
-		public void toClosedTable(int ticketNum, String admin) {
-			try {
-				statement = getConnection().createStatement();
-				statement.executeUpdate("Insert into rgtui_closedT(ticket_id, ticket_status, ticket_closer) values('" + ticketNum + "', 'closed', '" + admin + "')");
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}	
+
+	// to close tickets
+	public void closeTicket(int ticketNum, String endDate) {
+
+		try {
+			statement = getConnection().createStatement();
+			int updated = statement.executeUpdate(
+					"UPDATE tacos_tickets SET end_date = '" + endDate + "' WHERE ticket_id = '" + ticketNum + "'");
+
+			if (updated != 0)
+				System.out.println("Ticket #" + ticketNum + " closed");
+			else
+				System.out.println("No Ticket Closed");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		
-		//this allows to view the closed tickets
-		public ResultSet viewClosedTable() {
-			ResultSet results = null;
-			try {
-				statement = getConnection().createStatement();
-				results = statement.executeQuery("SELECT * FROM tacos_closedT");
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			return results;
-}
+	}
+
+	}}
+
+	// this allows for entering closed tickets into the closed ticket table and
+	// being able to view them
+	public void toClosedTable(int ticketNum, String admin) {
+		try {
+			statement = getConnection().createStatement();
+			statement.executeUpdate("Insert into rgtui_closedT(ticket_id, ticket_status, ticket_closer) values('"
+					+ ticketNum + "', 'closed', '" + admin + "')");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	// this allows to view the closed tickets
+	public ResultSet viewClosedTable() {
+		ResultSet results = null;
+		try {
+			statement = getConnection().createStatement();
+			results = statement.executeQuery("SELECT * FROM tacos_closedT");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return results;
+	}
 }
