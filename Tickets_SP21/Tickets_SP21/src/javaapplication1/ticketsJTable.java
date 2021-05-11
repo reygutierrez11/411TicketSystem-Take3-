@@ -36,7 +36,6 @@ public class ticketsJTable {
 		return new DefaultTableModel(data, columnNames); 
 
 
-
 	}
 
 }
