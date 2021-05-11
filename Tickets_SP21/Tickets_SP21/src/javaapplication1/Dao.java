@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Dao {
+	
 	// instance fields
 	static Connection connect = null;
 	Statement statement = null;
