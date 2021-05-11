@@ -146,6 +146,36 @@ public class Dao {
 		return results;
 	}
 	// continue coding for updateRecords implementation
-
+	public void updateRecords(String desc, int ticket_id) {
+		//UpdateSet up = null
+		try {
+			statement = connect.createStatement();
+			statement.executeUpdate("UPDATE rguti_tickets" + " SET ticket_description = '"+desc+"' "
+					+ " WHERE ticket_id = '"+ticket_id+"' ");
+			JOptionPane.showMessageDialog(null, "Update Complete");
+		}
+		catch(SQLException e1) {
+			e1.printStackTrace();
+		}
+		//return up;
+		}
+	}
 	// continue coding for deleteRecords implementation
+	public void deleteRecords(int ticketNum) {
+		
+		try { //deletes record
+			statement = connect.createStatement();
+			int deleted = statement.executeUpdate("DELETE from rguti_tickets WHERE ticket_id = " + ticketNum);
+			
+			if (deleted != 0)
+				System.out.println("Ticket #" + ticketNum+ " Deleted");
+			else
+				System.out.println("No Ticket Deleted. Ticket #" + ticketNum + " does not exist");
+	
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+	}
+		
+}
 }
