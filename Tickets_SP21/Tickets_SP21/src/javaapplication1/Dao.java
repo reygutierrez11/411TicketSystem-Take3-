@@ -178,6 +178,27 @@ public class Dao {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 	}
+		//this allows for closing tickets and entering them into the closed ticket table
+		public void toClosedTable(int ticketNum, String admin) {
+			try {
+				statement = getConnection().createStatement();
+				statement.executeUpdate("Insert into rgtui_closedT(ticket_id, ticket_status, ticket_closer) values('" + ticketNum + "', 'closed', '" + admin + "')");
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}	
+		}
 		
+		//this allows to view the closed tickets
+		public ResultSet viewClosedTable() {
+			ResultSet results = null;
+			try {
+				statement = getConnection().createStatement();
+				results = statement.executeQuery("SELECT * FROM tacos_closedT");
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return results;
 }
 }
