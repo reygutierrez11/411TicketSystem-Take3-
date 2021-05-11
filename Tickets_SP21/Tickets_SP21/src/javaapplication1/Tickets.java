@@ -21,6 +21,7 @@ public class Tickets extends JFrame implements ActionListener {
 	// class level member objects
 	Dao dao = new Dao(); // for CRUD operations
 	Boolean chkIfAdmin = null;
+	String username;
 
 	// Main menu object items
 	private JMenu mnuFile = new JMenu("File");
@@ -33,12 +34,18 @@ public class Tickets extends JFrame implements ActionListener {
 	JMenuItem mnuItemDelete;
 	JMenuItem mnuItemOpenTicket;
 	JMenuItem mnuItemViewTicket;
+	JMenuItem mnuItemUpdateTicketDesc; // updates ticket description
+	JMenuItem mnuItemViewTicketByNum; // shows tickets by number
+	JMenuItem mnuItemCloseTicket; // closes tickets
+	JMenuItem mnuItemClosedTickets; //for use in viewing the closed ticket menu
+
 
 	public Tickets(Boolean isAdmin) {
 
 		chkIfAdmin = isAdmin;
 		createMenu();
 		prepareGUI();
+		//username = user;
 
 	}
 
@@ -72,6 +79,22 @@ public class Tickets extends JFrame implements ActionListener {
 		mnuTickets.add(mnuItemViewTicket);
 
 		// initialize any more desired sub menu items below
+
+		//View by ticket number in ticket menu
+		mnuItemViewTicketByNum = new JMenuItem("View Ticket by Ticket Numbers");
+		mnuTickets.add(mnuItemViewTicketByNum);
+
+		//Used to close tickets, admins only
+		mnuItemCloseTicket = new JMenuItem("Close Ticket");
+		mnuAdmin.add(mnuItemCloseTicket);
+
+		//Update ticket descriptions
+		mnuItemUpdateTicketDesc = new JMenuItem("Update Ticket Description");
+		mnuTickets.add(mnuItemUpdateTicketDesc);
+
+		//Closes tickets menu
+		mnuItemClosedTickets = new JMenuItem("View Closed Tickets");
+		mnuAdmin.add(mnuItemClosedTickets);
 
 		/* Add action listeners for each desired menu item *************/
 		mnuItemExit.addActionListener(this);
