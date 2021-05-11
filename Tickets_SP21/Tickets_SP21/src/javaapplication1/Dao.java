@@ -42,6 +42,8 @@ public class Dao {
 		// variables for SQL Query table creations
 		final String createTicketsTable = "CREATE TABLE rguti_tickets(ticket_id INT AUTO_INCREMENT PRIMARY KEY, ticket_issuer VARCHAR(30), ticket_description VARCHAR(200))";
 		final String createUsersTable = "CREATE TABLE rguti_users(uid INT AUTO_INCREMENT PRIMARY KEY, uname VARCHAR(30), upass VARCHAR(30), admin int)";
+		//third table is for closed tickets
+		final String createClosedTicketsTable = "CREATE TABLE rguti_closedT(ticket_id INT PRIMARY KEY, ticket_status VARCHAR(10), ticket_closer VARCHAR(30))";
 
 		try {
 
