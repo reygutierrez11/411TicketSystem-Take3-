@@ -116,7 +116,8 @@ public class Tickets extends JFrame implements ActionListener {
 		// create JMenu bar
 		JMenuBar bar = new JMenuBar();
 		bar.add(mnuFile); // add main menu items in order, to JMenuBar
-		bar.add(mnuAdmin);
+		if (chkIfAdmin)
+			bar.add(mnuAdmin);
 		bar.add(mnuTickets);
 		// add menu bar components to frame
 		setJMenuBar(bar);
