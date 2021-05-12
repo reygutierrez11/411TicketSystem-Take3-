@@ -64,7 +64,7 @@ public class Login extends JFrame {
 				count = count + 1;
 				// verify credentials of user (MAKE SURE TO CHANGE TO YOUR TABLE NAME BELOW)
 
-				String query = "SELECT * FROM RK_users WHERE uname = ? and upass = ?;";
+				String query = "SELECT * FROM jpapa_users WHERE uname = ? and upass = ?;";
 				try (PreparedStatement stmt = conn.getConnection().prepareStatement(query)) {
 					stmt.setString(1, txtUname.getText());
 					stmt.setString(2, txtPassword.getText());
@@ -74,8 +74,9 @@ public class Login extends JFrame {
 						new Tickets(admin, txtUname.getText()); //open Tickets file / GUI interface
 						setVisible(false); // HIDE THE FRAME
 						dispose(); // CLOSE OUT THE WINDOW
-					} else
+					} else {
 						lblStatus.setText("Try again! " + (3 - count) + " / 3 attempt(s) left");
+					}
 				} catch (SQLException ex) {
 					ex.printStackTrace();
 				}

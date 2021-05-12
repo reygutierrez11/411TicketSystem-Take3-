@@ -1,6 +1,5 @@
 package javaapplication1;
 
-import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -41,7 +40,7 @@ public class Dao {
 
 	public void createTables() {
 		// variables for SQL Query table creations
-		final String createTicketsTable = "CREATE TABLE rguti_tickets(ticket_id INT AUTO_INCREMENT PRIMARY KEY, ticket_issuer VARCHAR(30), ticket_description VARCHAR(200))";
+		final String createTicketsTable = "CREATE TABLE rguti_tickets1 (ticket_id INT AUTO_INCREMENT PRIMARY KEY, ticket_issuer VARCHAR(30), ticket_description VARCHAR(200), start_date DATE, end_date DATE)";
 		final String createUsersTable = "CREATE TABLE rguti_users(uid INT AUTO_INCREMENT PRIMARY KEY, uname VARCHAR(30), upass VARCHAR(30), admin int)";
 		//third table is for closed tickets
 		final String createClosedTicketsTable = "CREATE TABLE rguti_closedT(ticket_id INT PRIMARY KEY, ticket_status VARCHAR(10), ticket_closer VARCHAR(30))";
@@ -54,6 +53,7 @@ public class Dao {
 
 			statement.executeUpdate(createTicketsTable);
 			statement.executeUpdate(createUsersTable);
+			statement.executeUpdate(createClosedTicketsTable);
 			System.out.println("Created tables in given database...");
 
 			// end create table
@@ -62,6 +62,7 @@ public class Dao {
 			connect.close();
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
+			System.out.println("Dont work");
 		}
 		// add users to user table
 		addUsers();
@@ -79,7 +80,7 @@ public class Dao {
 
 		// read data from file
 		try {
-			br = new BufferedReader(new FileReader(new File("./userlist.csv")));
+			br = new BufferedReader(new FileReader(new File("411TicketSystem/Tickets_SP21/Tickets_SP21/userlist.csv")));
 
 			String line;
 			while ((line = br.readLine()) != null) {
@@ -113,12 +114,12 @@ public class Dao {
 		}
 	}
 
-	public int insertRecords(String ticketName, String ticketDesc) {
+	public int insertRecords(String ticketName, String ticketDesc, String startDate) {
 		int id = 0;
 		try {
 			statement = getConnection().createStatement();
-			statement.executeUpdate("Insert into rguti_tickets" + "(ticket_issuer, ticket_description) values(" + " '"
-					+ ticketName + "','" + ticketDesc + "')", Statement.RETURN_GENERATED_KEYS);
+			statement.executeUpdate("Insert into rguti_tickets1" + "(ticket_issuer, ticket_description, start_date) values(" + " '"
+					+ ticketName + "','" + ticketDesc +  "','" + startDate + "')", Statement.RETURN_GENERATED_KEYS);
 
 			// retrieve ticket id number newly auto generated upon record insertion
 			ResultSet resultSet = null;
@@ -136,12 +137,21 @@ public class Dao {
 
 	}
 
-	public ResultSet readRecords() {
+	//view records
+	public ResultSet readRecords(boolean isAdmin, String user) {
 
 		ResultSet results = null;
 		try {
-			statement = connect.createStatement();
-			results = statement.executeQuery("SELECT * FROM rguti_tickets");
+			statement = getConnection().createStatement();
+			if(isAdmin)
+			{
+				results = statement.executeQuery("SELECT * FROM rguti_tickets1");
+			}
+			else
+			{
+				results = statement.executeQuery("SELECT * FROM rguti_tickets1 WHERE ticket_issuer = '" + user +"'");
+			}
+
 			//connect.close();
 		} catch (SQLException e1) {
 			e1.printStackTrace();
@@ -149,13 +159,23 @@ public class Dao {
 		return results;
 	}
 	// continue coding for updateRecords implementation
-	public void updateRecords(String desc, int ticket_id) {
+	public void updateRecords(boolean isAdmin, int ticketNum, String user, String desc) {
 		//UpdateSet up = null
 		try {
 			statement = connect.createStatement();
-			statement.executeUpdate("UPDATE rguti_tickets" + " SET ticket_description = '"+desc+"' "
-					+ " WHERE ticket_id = '"+ticket_id+"' ");
-			JOptionPane.showMessageDialog(null, "Update Complete");
+			int updated;
+			if (isAdmin) {
+				updated = statement.executeUpdate("UPDATE rguti_tickets1 SET ticket_description = '" + desc + "' WHERE ticket_id = " + ticketNum);
+			}
+			else
+				updated = statement.executeUpdate("UPDATE rguti_tickets1 SET ticket_description = '" + desc + "' WHERE ticket_issuer = '" + user + "', AND ticket_num = " + ticketNum);
+
+			if (updated != 0){
+				System.out.println("Ticket #" + ticketNum + " updated. New Description: " + desc);
+			}
+			else
+				System.out.println("No Ticket Updated");
+
 		}
 		catch(SQLException e1) {
 			e1.printStackTrace();
@@ -167,12 +187,12 @@ public class Dao {
 
 		try { //deletes record
 			statement = connect.createStatement();
-			int deleted = statement.executeUpdate("DELETE from rguti_tickets WHERE ticket_id = " + ticketNum);
+			int deleted = statement.executeUpdate("DELETE from rguti_tickets1 WHERE ticket_id = " + ticketNum);
 
 			if (deleted != 0)
-				System.out.println("Ticket #" + ticketNum+ " Deleted");
+				System.out.println("Record" + ticketNum+ " Deleted");
 			else
-				System.out.println("No Ticket Deleted. Ticket #" + ticketNum + " does not exist");
+				System.out.println("No Record Deleted. Record" + ticketNum + " does not exist");
 
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -180,20 +200,41 @@ public class Dao {
 		}
 	}
 
-	// this allows for entering closed tickets into the closed ticket table and
-	// being able to view them
-	public void toClosedTable(int ticketNum, String admin) {
+	public ResultSet ticketByNum(boolean isAdmin, int ticketNum, String user) {
+
+		ResultSet results = null;
 		try {
 			statement = getConnection().createStatement();
-			statement.executeUpdate("Insert into rgtui_closedT(ticket_id, ticket_status, ticket_closer) values('"
-					+ ticketNum + "', 'closed', '" + admin + "')");
+			if(isAdmin)
+				results = statement.executeQuery("SELECT * FROM rguti_tickets1 WHERE ticket_id = " + ticketNum);
+			else //can only see ticket if it is yours or you are an admin
+				results = statement.executeQuery("SELECT * FROM rguti_tickets1 WHERE ticket_id = '" + ticketNum + "' AND ticket_issuer = '" + user + "'");
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return results;
+	}
+
+	public void closeTicket(int ticketNum, String endDate) {
+
+		try {
+			statement = getConnection().createStatement();
+
+			int updated = statement.executeUpdate("UPDATE rguti_tickets1 SET end_date = '" + endDate + "' WHERE ticket_id = '" + ticketNum + "'");
+
+			if (updated != 0)
+				System.out.println("Ticket #" + ticketNum + " closed");
+			else
+				System.out.println("No Ticket Closed");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
-	// this allows to view the closed tickets
 	public ResultSet viewClosedTable() {
 		ResultSet results = null;
 		try {
@@ -204,6 +245,17 @@ public class Dao {
 			e.printStackTrace();
 		}
 		return results;
+	}
+
+
+	public void toClosedTable(int ticketNum, String admin) {
+		try {
+			statement = getConnection().createStatement();
+			statement.executeUpdate("Insert into rguti_closedT(ticket_id, ticket_status, ticket_closer) values('" + ticketNum + "', 'closed', '" + admin + "')");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 

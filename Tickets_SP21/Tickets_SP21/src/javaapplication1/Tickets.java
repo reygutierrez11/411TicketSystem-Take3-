@@ -147,12 +147,12 @@ public class Tickets extends JFrame implements ActionListener {
 		} else if (e.getSource() == mnuItemOpenTicket) {
 
 			// get ticket information
-			String ticketName = JOptionPane.showInputDialog(null, "Enter your name");
+			String startDate = JOptionPane.showInputDialog(null, "Enter a ticket start date in YYYY-MM-DD form");
 			String ticketDesc = JOptionPane.showInputDialog(null, "Enter a ticket description");
 
 			// insert ticket information to database
 
-			int id = dao.insertRecords(ticketName, ticketDesc);
+			int id = dao.insertRecords(username, ticketDesc, startDate);
 
 			// display results if successful or not to console / dialog box
 			if (id != 0) {
@@ -160,16 +160,81 @@ public class Tickets extends JFrame implements ActionListener {
 				JOptionPane.showMessageDialog(null, "Ticket id: " + id + " created");
 			} else
 				System.out.println("Ticket cannot be created!!!");
-		}
-
-		else if (e.getSource() == mnuItemViewTicket) {
+		} else if (e.getSource() == mnuItemViewTicket) {
 
 			// retrieve all tickets details for viewing in JTable
 			try {
 
 				// Use JTable built in functionality to build a table model and
 				// display the table model off your result set!!!
-				JTable jt = new JTable(ticketsJTable.buildTableModel(dao.readRecords()));
+				JTable jt = new JTable(ticketsJTable.buildTableModel(dao.readRecords(chkIfAdmin, username)));
+				jt.setBounds(35, 45, 250, 450);
+				JScrollPane sp = new JScrollPane(jt);
+				add(sp);
+				setVisible(true); // refreshes or repaints frame on screen
+
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+
+		}
+		else if(e.getSource() == mnuItemCloseTicket) {
+
+
+			//get end date
+			String ticketNum = JOptionPane.showInputDialog(null, "Enter the ticket number you want to close");
+			String endDate = JOptionPane.showInputDialog(null, "Enter the end date for the ticket in YYYY-MM-DD form");
+			int confirmation = JOptionPane.showConfirmDialog(null, ("You want to close ticket #" + ticketNum), "Confirm?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+			if (confirmation == JOptionPane.NO_OPTION)
+				System.out.println("Ticket Closing Cancelled");
+			else {
+				dao.closeTicket(Integer.valueOf(ticketNum), endDate);
+				dao.toClosedTable(Integer.valueOf(ticketNum), username);
+			}
+
+
+		}else if (e.getSource() == mnuItemDelete) {
+			String ticketNum = JOptionPane.showInputDialog(null, "Enter ticket number you want to delete");
+			int confirmation = JOptionPane.showConfirmDialog(null, "Delete ticket # " + ticketNum + "?", "Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE); //confirmation menu for deleting
+
+			if (confirmation == JOptionPane.NO_OPTION)
+				System.out.println("Deletion cancelled");
+			else
+				dao.deleteRecords(Integer.valueOf(ticketNum));
+		} else if (e.getSource() == mnuItemUpdateTicketDesc) {
+			String ticketNum = JOptionPane.showInputDialog(null, "Enter ticket number you want to update");
+			String ticketDesc = JOptionPane.showInputDialog(null, "Enter the new ticket description");
+
+			int confirmation = JOptionPane.showConfirmDialog(null, "Update ticket # " + ticketNum + " description?", "Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE); //confirmation menu for updating ticket number
+
+			if (confirmation == JOptionPane.NO_OPTION)
+				System.out.println("Update cancelled");
+			else
+				dao.updateRecords(chkIfAdmin, Integer.valueOf(ticketNum), username, ticketDesc);
+		} else if (e.getSource() == mnuItemClosedTickets) {
+			// Use JTable built in functionality to build a table model and
+			// display the table model off your result set!!!
+			JTable jt;
+			try {
+				jt = new JTable(ticketsJTable.buildTableModel(dao.viewClosedTable()));
+				jt.setBounds(30, 40, 200, 400);
+				JScrollPane sp = new JScrollPane(jt);
+				add(sp);
+				setVisible(true); // refreshes frame on screen
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} //if dealing with an administrator, something different is printed to them
+		} else if (e.getSource() == mnuItemViewTicketByNum) {
+			// retrieve all tickets details for viewing in JTable
+			try {
+
+				int ticketNum = Integer.valueOf(JOptionPane.showInputDialog(null, "Enter the ticket number you want to view"));
+
+				// Use JTable built in functionality to build a table model and
+				// display the table model off your result set!!!
+				JTable jt = new JTable(ticketsJTable.buildTableModel(dao.ticketByNum(chkIfAdmin, ticketNum, username))); //if we are dealing with an administrator, then there should be something different printed to them
 				jt.setBounds(30, 40, 200, 400);
 				JScrollPane sp = new JScrollPane(jt);
 				add(sp);
@@ -179,11 +244,6 @@ public class Tickets extends JFrame implements ActionListener {
 				e1.printStackTrace();
 			}
 		}
-		/*
-		 * continue implementing any other desired sub menu items (like for update and
-		 * delete sub menus for example) with similar syntax & logic as shown above
-		 */
 
 	}
-
 }
